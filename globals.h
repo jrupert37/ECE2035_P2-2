@@ -11,6 +11,8 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#define YELLOW 0xFFFF00
+
 // Include all the hardware libraries
 #include "mbed.h"
 #include "wave_player.h"
