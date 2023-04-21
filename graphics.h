@@ -68,4 +68,11 @@ void draw_earth(int u , int v);
 void draw_buzz(int u, int v);
 void draw_chest(int u, int v);
 void draw_white_block(int u, int v);
+void draw_key(int u, int v);
+void draw_hearts(int u, int v, int num_lives);
+void draw_spikes(int u, int v);
+void draw_big_tree1(int u, int v);
+void draw_big_tree2(int u, int v);
+void draw_big_tree3(int u, int v);
+void draw_big_tree4(int u, int v);
 #endif // GRAPHICS_H

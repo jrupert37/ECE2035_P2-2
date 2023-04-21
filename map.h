@@ -83,6 +83,9 @@ typedef struct {
 #define EARTH   12
 #define BUZZ    13
 #define WHITE_BLOCK 14
+#define SPIKES      15
+#define FIRE_HEALTH 16
+#define BIG_TREE    17
 
 /**
  * Initializes the internal structures for all maps. This does not populate
@@ -185,13 +188,18 @@ void add_stairs(int x, int y, int tm, int tx, int ty);
 void add_cave(int x, int y, int n,int tm, int tx, int ty);
 void add_mud(int x, int y, int dir, int len);
 void add_water(int x, int y);
-void add_fire(int x, int y);
+void add_fire(int x, int y, int type);
 void add_earth(int x, int y, int dir, int len);
 void add_buzz(int x, int y);
 void add_slain_buzz(int x, int y);
 void add_white_block(int x, int y);
 void add_chest(int x, int y);
+void add_spikes(int x, int y);
+void add_big_tree(int x, int y);
+void add_big_tree1(int x, int y);
+void add_big_tree2(int x, int y);
+void add_big_tree3(int x, int y);
+void add_big_tree4(int x, int y);
 int get_active_map_index();
-
 
 #endif //MAP_H

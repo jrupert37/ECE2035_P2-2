@@ -85,3 +85,5 @@ extern Nav_Switch navs;     // Nav Switch
 #define ERROR_MEH -1 // This is how errors are done
 
 #endif //GLOBAL_H
+
+void enemy_turn();

@@ -42,8 +42,9 @@ struct {
     bool game_solved;   // flag when game is complete
     bool talked_to_npc; // flag when you've talked to npc
     bool ramblin;
+    bool is_hidden;
+    int num_lives;
     //You may add more flags as needed
-
 } Player;
 
 
@@ -118,8 +119,10 @@ int get_action(GameInputs inputs)
  * the player has not moved.
  */
 #define NO_RESULT 0
-#define GAME_OVER 3
+#define WIN       3
 #define FULL_DRAW 2
+#define LOSE      4
+
 int update_game(int action)
 {
     
@@ -133,11 +136,15 @@ int update_game(int action)
     MapItem* s = NULL;
     MapItem* w = NULL;
     MapItem* here = NULL;
-    
-    
+    n = get_north(Player.x, Player.y);
+    e = get_east(Player.x, Player.y);
+    s = get_south(Player.x, Player.y);
+    w = get_west(Player.x, Player.y);
+    here = get_here(Player.x, Player.y);
+
+
     // Do different things based on the each action.
     // You can define functions like "go_up()" that get called for each case.
-
     switch(action)
     {
         case GO_UP:
@@ -150,6 +157,22 @@ int update_game(int action)
                 Player.x = Player.x;
                 Player.y = Player.y - 1;
             }
+            if (item->type == SPIKES) {
+                speech("You have run", "into spikes!");
+                speech("You lose a", "heart!");
+                Player.num_lives--;
+                draw_hearts(0, 120, Player.num_lives);
+                if (Player.num_lives == 0) {
+                    return LOSE;
+                }
+            }
+            item = get_here(Player.x, Player.y);
+            if (item->type == BIG_TREE) {
+                Player.is_hidden = true;
+            } else
+            {
+                Player.is_hidden = false;
+            }
             direction = 'N';    // set current direction to N (north)
             return FULL_DRAW;
             break;
@@ -160,6 +183,22 @@ int update_game(int action)
                 Player.x = Player.x - 1;
                 Player.y = Player.y;
             }   
+            if (item->type == SPIKES) {
+                speech("You have run", "into spikes!");
+                speech("You lose a", "heart!");
+                Player.num_lives--;
+                draw_hearts(0, 120, Player.num_lives);
+                if (Player.num_lives == 0) {
+                    return LOSE;
+                }
+            }
+            item = get_here(Player.x, Player.y);
+            if (item->type == BIG_TREE) {
+                Player.is_hidden = true;
+            } else
+            {
+                Player.is_hidden = false;
+            }
             direction = 'W';    // set current direction to W (west)
             return FULL_DRAW;
             break;
@@ -169,6 +208,22 @@ int update_game(int action)
             if (Player.ramblin || item->walkable){
                 Player.x = Player.x;
                 Player.y = Player.y + 1;
+            }
+            if (item->type == SPIKES) {
+                speech("You have run", "into spikes!");
+                speech("You lose a", "heart!");
+                Player.num_lives--;
+                draw_hearts(0, 120, Player.num_lives);
+                if (Player.num_lives == 0) {
+                    return LOSE;
+                }
+            }
+            item = get_here(Player.x, Player.y);
+            if (item->type == BIG_TREE) {
+                Player.is_hidden = true;
+            } else
+            {
+                Player.is_hidden = false;
             }
             direction = 'S';    // set current direction to S (south)
             return FULL_DRAW;
@@ -180,6 +235,22 @@ int update_game(int action)
                 Player.x = Player.x + 1;
                 Player.y = Player.y;
             }
+            if (item->type == SPIKES) {
+                speech("You have run", "into spikes!");
+                speech("You lose a", "heart!");
+                Player.num_lives--;
+                draw_hearts(0, 120, Player.num_lives);
+                if (Player.num_lives == 0) {
+                    return LOSE;
+                }
+            }
+            item = get_here(Player.x, Player.y);
+            if (item->type == BIG_TREE) {
+                Player.is_hidden = true;
+            } else
+            {
+                Player.is_hidden = false;
+            }
             direction = 'E';    // set current directino to E (east)
             return FULL_DRAW;
             break;
@@ -190,11 +261,6 @@ int update_game(int action)
             //     - if so, mark the player has talked and give instructions on what to do
             //     - if the game is solved (defeated Buzz), give the player the key
             //     - return FULL_DRAW to redraw the scene
-            n = get_north(Player.x, Player.y);
-            e = get_east(Player.x, Player.y);
-            s = get_south(Player.x, Player.y);
-            w = get_west(Player.x, Player.y);
-            here = get_here(Player.x, Player.y);
             if (n->type == NPC || e->type == NPC || s->type == NPC || w->type == NPC) {
                 // If player has not yet talked to NPC
                 if(Player.talked_to_npc == false && Player.game_solved == false) {
@@ -204,6 +270,15 @@ int update_game(int action)
                     speech("He has a weakness", "for fire...");
                     speech("If you succeed", "in defeating him");
                     speech("I will give", "you a key!");
+                    speech("By the way...", "");
+                    speech("You can regain", "lost health");
+                    speech("By finding one", "of the");
+                    speech("nearby campsites.","");
+                    speech("Follow one of", "the earthen");
+                    speech("paths toward", "the north");
+                    speech("and while", "standing next");
+                    speech("to one of the", "fires...");
+                    speech("press the action", "button!");
                     return FULL_DRAW;
                 }
                 // If player has talked to NPC but has not yet defeated buzz
@@ -213,6 +288,15 @@ int update_game(int action)
                     speech("If you defeat", "Buzz...");
                     speech("I will give", "you a key!");
                     speech("He has a weakness", "for fire...");
+                    speech("And by the way...", "");
+                    speech("You can regain", "lost health");
+                    speech("By finding one", "of the");
+                    speech("nearby campsites.","");
+                    speech("Follow one of", "the earthen");
+                    speech("paths toward", "the north");
+                    speech("and while", "standing next");
+                    speech("to one of the", "fires...");
+                    speech("press the action", "button!");
                     return FULL_DRAW;
                 }
                 // If player has defeated buzz and not yet gotten the key
@@ -275,6 +359,15 @@ int update_game(int action)
                 Player.y = 46;
                 set_active_map(MAIN_MAP);
                 return FULL_DRAW;
+            } else if (n->type == FIRE_HEALTH || e->type == FIRE_HEALTH || s->type == FIRE_HEALTH || w->type == FIRE_HEALTH) { 
+                if (Player.num_lives < 3) {
+                    speech("You have gained", "a heart back!");
+                    Player.num_lives++;
+                    draw_hearts(0, 120, Player.num_lives);
+                } else {
+                    speech("You have full", "health already!");
+                }
+                return FULL_DRAW;
             } else if (get_active_map_index() == BOSS_MAP) {
                 // If player is in the boss map, and adjacent to fire/water/earth elements
                 if ((here->type == FIRE || n->type == FIRE || e->type == FIRE || s->type == FIRE || w->type == FIRE) && !Player.game_solved) {
@@ -290,19 +383,28 @@ int update_game(int action)
                 } else if ((here->type == WATER || n->type == WATER || e->type == WATER || s->type == WATER || w->type == WATER) && !Player.game_solved) {
                     speech("You have cast", "Water!");
                     speech("But Buzz remains", "undefeated!");
-                    speech("Try again!", "");
+                    enemy_turn();
+                    if (Player.num_lives == 0) {
+                        return LOSE;
+                    }
+                    speech("Try casting", "again!");
                     return FULL_DRAW;
                 } else if ((here->type == EARTH || n->type == EARTH || e->type == EARTH || s->type == EARTH || w->type == EARTH) && !Player.game_solved) {
                     speech("You have cast", "Earth!");
                     speech("But Buzz remains", "undefeated!");
-                    speech("Try again!", "");
+                    enemy_turn();
+                    if (Player.num_lives == 0) {
+                        return LOSE;
+                    }
+                    speech("Try casting", "again!");
+                    return FULL_DRAW;
                 }
             // If the player is approaching the chest
             } else if (n->type == CHEST || e->type == CHEST || s->type == CHEST || w->type == CHEST || here->type == CHEST) {
                 if (Player.game_solved) {
                     speech("You have earned", "1000 Rupees!");
                     speech("Congratulations!", "");
-                    return GAME_OVER;
+                    return WIN;
                 } else {
                     // If player walked through door or wall in ramblin mode
                     speech("Nice try! You", "must defeat buzz");
@@ -323,8 +425,15 @@ int update_game(int action)
 }
 
 
+void enemy_turn() {
+    speech("Now it is", "Buzz's turn!");
+    speech("He has cast an", "anti-hero spell!");
+    speech("You lose a", "heart!");
+    Player.num_lives--;
+    draw_hearts(0, 120, Player.num_lives);
+}
 
-
+bool key_drawn = false;
 /////////////////////////
 // Draw Game
 /////////////////////////
@@ -341,13 +450,19 @@ void draw_game(int init)
     if(init) draw_border();
 
     // If player has defeated buzz, received the key, and opened the chest
-    if(init == GAME_OVER) {
+    if(init == WIN) {
         Game_Over = true;
         // Clear the uLCD screen
         uLCD.cls(); 
         // And display game over text
         draw_text("Game Over", 8, 5, GREEN);
         draw_text("You Win!", 9, 6, GREEN);
+        return;
+    } else if (init == LOSE) {
+        Game_Over = true;
+        uLCD.cls();
+        draw_text("Game Over", 8, 5, RED);
+        draw_text("You Lose!", 9, 5, RED);
         return;
     }
     
@@ -373,7 +488,7 @@ void draw_game(int init)
             // Figure out what to draw
             DrawFunc draw = NULL;
 //            if (init && i == 0 && j == 0) // Only draw the player on init
-            if ( i == 0 && j == 0) // always draw the player
+            if (!Player.is_hidden && i == 0 && j == 0) // always draw the player
             {
                 draw_player(u, v, Player.has_key);
                 continue;
@@ -422,11 +537,12 @@ void draw_game(int init)
     // Display this text at the top of the screen
     draw_text(xCoordinate, 0, 0, WHITE);
 
+    if (Player.has_key && !key_drawn) {     // key only needs to be drawn once
+        draw_key(115, 0);
+        key_drawn = true;
+    }
 
-
-    //draw_text(coordinates);
-    //char* = "(%d, %d)", Player.x;
-    //uLCD.puts("%d", Player.x);
+   // draw_hearts(0, 120, Player.num_lives);
 }
 
 
@@ -491,10 +607,10 @@ void init_main_map()
 
 
     // // Add fire elements to "campsites"
-    add_fire(47, 2);
-    add_fire(28, 9);
-    add_fire(6, 22);
-    add_fire(6, 26);
+    add_fire(47, 2, FIRE_HEALTH);
+    add_fire(28, 9, FIRE_HEALTH);
+    add_fire(6, 22, FIRE);
+    add_fire(6, 26, FIRE);
     
 
     //Add water/ponds
@@ -555,19 +671,13 @@ void init_main_map()
     add_plant(19, 10);
     add_plant(38, 10);
     add_plant(41, 10);
-    add_plant(23, 11);
     add_plant(2, 12);
     add_plant(14, 12);
     add_plant(34, 12);
     add_plant(45, 14);
-    add_plant(18, 15);
-    add_plant(5, 16);
     add_plant(28, 16);
     add_plant(39, 16);
     add_plant(11, 17);
-    add_plant(23, 17);
-    add_plant(34, 17);
-    add_plant(18, 21);
     add_plant(4, 21);
     add_plant(3, 22);
     add_plant(3, 23);
@@ -583,7 +693,6 @@ void init_main_map()
     add_plant(6, 45);
     add_plant(7, 45);
     add_plant(8, 45);
-    add_plant(21, 46);
     add_plant(33, 46);
     add_plant(43, 46);
     add_plant(25, 45);
@@ -597,22 +706,23 @@ void init_main_map()
     add_plant(30, 40);
     add_plant(44, 40);
     add_plant(35, 38);
-    add_plant(8, 36);
-    add_plant(15, 36);
     add_plant(21, 35);
     add_plant(29, 35);
-    add_plant(39, 35);
     add_plant(44, 35);
     add_plant(3, 34);
-    add_plant(6, 31);
     add_plant(12, 31);
     add_plant(21, 31);
     add_plant(34, 31);
-    add_plant(29, 30);
-    add_plant(42, 30);
-    add_plant(17, 29);
     add_plant(25, 28);
     add_plant(8, 47);
+
+    add_big_tree(14, 36);
+    add_big_tree(17, 20);
+
+    add_spikes(8, 36);
+    add_spikes(5, 16);
+    add_spikes(42, 30);
+    add_spikes(21, 46);
 
     // Add entrance to Buzz's cave
     add_earth(1, 44, HORIZONTAL, 1);
@@ -658,7 +768,7 @@ void init_boss_map()
     add_plant(18, 11);
     
     // 2. Add your three spells at different locations
-    add_fire(6, 6);
+    add_fire(6, 6, FIRE);
     add_water(6, 9);
     add_earth(6, 12, HORIZONTAL, 1);
     
@@ -699,7 +809,10 @@ int main()
     Player.game_solved = false;
     Player.talked_to_npc = false;
     Player.ramblin = false;
+    Player.is_hidden = false;
+    Player.num_lives = 3;
     draw_game(true);
+    draw_hearts(0, 120, Player.num_lives);
     
     // Main game loop
     // Run while Game_Over is false (player has not solved the quest and opened the chest)

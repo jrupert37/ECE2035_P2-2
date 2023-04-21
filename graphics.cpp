@@ -144,6 +144,102 @@ void draw_wall(int u, int v)
     //uLCD.filled_rectangle(u, v, u+10, v+10, BROWN);
 }
 
+void draw_key(int u, int v)
+{
+    const char* img =
+        "          "
+        " YY   Y  Y"
+        "YYYY  Y  Y"
+        "Y  YYYYYYY"
+        "Y  YYYYYYY"
+        "YYYY      "
+        " YY       "
+        "          ";
+    int colors[11*11];
+    for (int i = 0; i < 11*11; i++)
+    {
+        //You can add more characters by defining their hex values above
+        if (img[i] == 'R') colors[i] = RED;
+        else if (img[i] == 'Y') colors[i] = YELLOW;
+        else if (img[i] == 'G') colors[i] = GREEN;
+        else if (img[i] == 'D') colors[i] = DIRT;
+        else if (img[i] == '5') colors[i] = LGREY;
+        else if (img[i] == '3') colors[i] = DGREY;
+        else if (img[i] == 'A') colors[i] = AZURE;
+        else if (img[i] == 'T') colors[i] = TEAL;
+        else if (img[i] == '1') colors[i] = C_DBROWN;
+        else if (img[i] == '2') colors[i] = C_LBROWN;
+        else if (img[i] == 'W') colors[i] = WHITE;
+        else if (img[i] == '4') colors[i] = LPURPLE;
+        else if (img[i] == '6') colors[i] = NPC_DGRAY;
+        else if (img[i] == '7') colors[i] = NPC_LGRAY;
+        else if (img[i] == '8') colors[i] = NPC_PURPLE;
+        else if (img[i] == '9') colors[i] = NPC_BROWN;
+        else if (img[i] == 'S') colors[i] = SKIN;
+        else if (img[i] == 'E') colors[i] = LK_GREEN;
+        else if (img[i] == 'S') colors[i] = SKIN;
+        else if (img[i] == 'O') colors[i] = LK_ORANGE;
+        else if (img[i] == 'F') colors[i] = FR_ORANGE;
+        else if (img[i] == 'B') colors[i] = WT_DBLUE;
+        else if (img[i] == 'L') colors[i] = WT_LBLUE;
+        else colors[i] = BLACK;
+    }
+    uLCD.BLIT(u, v, 10, 8, colors);
+    wait_us(250); // Recovery time!
+}
+
+void draw_hearts(int u, int v, int num_lives) 
+{
+    const char* img = 
+        "  R   R  "
+        " RRR RRR "
+        " RRRRRRR "
+        " RRRRRRR "
+        "  RRRRR  "
+        "   RRR   "
+        "    R    ";
+    int colors[11*11];
+    for (int i = 0; i < 11*11; i++)
+    {
+        //You can add more characters by defining their hex values above
+        if (img[i] == 'R') colors[i] = RED;
+        else if (img[i] == 'Y') colors[i] = YELLOW;
+        else if (img[i] == 'G') colors[i] = GREEN;
+        else if (img[i] == 'D') colors[i] = DIRT;
+        else if (img[i] == '5') colors[i] = LGREY;
+        else if (img[i] == '3') colors[i] = DGREY;
+        else if (img[i] == 'A') colors[i] = AZURE;
+        else if (img[i] == 'T') colors[i] = TEAL;
+        else if (img[i] == '1') colors[i] = C_DBROWN;
+        else if (img[i] == '2') colors[i] = C_LBROWN;
+        else if (img[i] == 'W') colors[i] = WHITE;
+        else if (img[i] == '4') colors[i] = LPURPLE;
+        else if (img[i] == '6') colors[i] = NPC_DGRAY;
+        else if (img[i] == '7') colors[i] = NPC_LGRAY;
+        else if (img[i] == '8') colors[i] = NPC_PURPLE;
+        else if (img[i] == '9') colors[i] = NPC_BROWN;
+        else if (img[i] == 'S') colors[i] = SKIN;
+        else if (img[i] == 'E') colors[i] = LK_GREEN;
+        else if (img[i] == 'S') colors[i] = SKIN;
+        else if (img[i] == 'O') colors[i] = LK_ORANGE;
+        else if (img[i] == 'F') colors[i] = FR_ORANGE;
+        else if (img[i] == 'B') colors[i] = WT_DBLUE;
+        else if (img[i] == 'L') colors[i] = WT_LBLUE;
+        else colors[i] = BLACK;
+    }
+    int offset = 0;
+    int j;
+    for (j = 0; j < num_lives; j++) {
+        uLCD.BLIT(u+offset, v, 9, 7, colors);
+        offset += 9;
+    }
+    int all_black[189];
+    for (j = 0; j < 189; j++) {
+        all_black[j] = BLACK;
+    }
+    uLCD.BLIT(offset, v, 27, 7, all_black);
+}
+
 void draw_door(int u, int v) // x, y
 {
     const char* img = 
@@ -225,6 +321,91 @@ void draw_plant(int u, int v)
         "    DD     "
         "   DDDDD   "
         "  D  D  D  ";
+    draw_img(u, v, img);
+}
+
+void draw_big_tree1(int u, int v) 
+{
+    const char* img =
+        "        GGG"
+        "    GGGGGGW"
+        "   GGWWGWWG"
+        "   GGGWGGGG"
+        "  GWWGGWGWG"
+        "  GGGGGGGGG"
+        " GGGGWWGGWG"
+        "GGGGGGGWGGG"
+        "GGGGGGGGGGG"
+        "GGGGGGGGGGG"
+        " GGGGGGGGGG";
+    draw_img(u, v, img);
+}
+
+void draw_big_tree2(int u, int v)
+{
+    const char* img = 
+        "GG         "
+        "WGGGGGGGG  "
+        "GGWWGWWGGG "
+        "WGGWGGWWGGG"
+        "GGGWGGGGGGG"
+        "GWGWGWGGWGG"
+        "GGGGGGGGGGW"
+        "GGGGGGGGGGW"
+        "GGGGGGGGGGG"
+        "WGDDGGGGGGW"
+        "WWDDGGGGGGW";
+    draw_img(u, v, img);
+}
+
+void draw_big_tree3(int u, int v)
+{
+    const char* img =
+        "  GGGGGGDGG"
+        "   GGGGGDGD"
+        "     GWGDDD"
+        "      DDDDD"
+        "       DDDD"
+        "        DDD"
+        "        DDD"
+        "       DDDD"
+        "       DDDD"
+        "      DDDDD"
+        "    DDDDDDD";
+    draw_img(u, v, img);
+}
+
+void draw_big_tree4(int u, int v) 
+{
+    const char* img = 
+        "WWDDDGGGGG "
+        "WDDD GGGG  "
+        "DDDD   G   "
+        "DDDDD      "
+        "DDDDD      "
+        "DDDDD      "
+        "DDDD       "
+        "DDDD       "
+        "DDDDD      "
+        "DDDDDD     "
+        "DDDDDDD    ";
+    draw_img(u, v, img);
+}
+
+void draw_spikes(int u, int v) 
+{
+    const char* img =
+        "           "
+        " R   R   R "
+        " R   R   R "
+        " RR  RR  RR"
+        " RR  RR  RR"
+        "RRR RRR RRR"
+        "RW5 RW5 RW5"
+        "WW5 WW5 WW5"
+        "WW5 WW5 WW5"
+        "WW5WWW5WWW5"
+        "WW5WWW5WWW5";
     draw_img(u, v, img);
 }
 

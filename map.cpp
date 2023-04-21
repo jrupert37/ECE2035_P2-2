@@ -302,11 +302,80 @@ void add_water(int x, int y)
     }
 } // add_water
 
-void add_fire(int x, int y)
+void add_big_tree1(int x, int y) {
+    MapItem* newTree = (MapItem*) malloc(sizeof(MapItem));
+    newTree->type = BIG_TREE;
+    newTree->draw = draw_big_tree1;
+    newTree->walkable = true;
+    newTree->data = NULL;
+    void* val = insertItem(get_active_map()->items, XY_KEY(x, y), newTree);
+    if (val) {
+        free(val);
+    }
+}
+
+void add_big_tree2(int x, int y) {
+    MapItem* newTree = (MapItem*) malloc(sizeof(MapItem));
+    newTree->type = BIG_TREE;
+    newTree->draw = draw_big_tree2;
+    newTree->walkable = true;
+    newTree->data = NULL;
+    void* val = insertItem(get_active_map()->items, XY_KEY(x, y), newTree);
+    if (val) {
+        free(val);
+    }
+}
+
+void add_big_tree3(int x, int y) {
+    MapItem* newTree = (MapItem*) malloc(sizeof(MapItem));
+    newTree->type = BIG_TREE;
+    newTree->draw = draw_big_tree3;
+    newTree->walkable = true;
+    newTree->data = NULL;
+    void* val = insertItem(get_active_map()->items, XY_KEY(x, y), newTree);
+    if (val) {
+        free(val);
+    }
+}
+
+void add_big_tree4(int x, int y) {
+    MapItem* newTree = (MapItem*) malloc(sizeof(MapItem));
+    newTree->type = BIG_TREE;
+    newTree->draw = draw_big_tree4;
+    newTree->walkable = true;
+    newTree->data = NULL;
+    void* val = insertItem(get_active_map()->items, XY_KEY(x, y), newTree);
+    if (val) {
+        free(val);
+    }
+}
+
+void add_big_tree(int x, int y)
+{
+    add_big_tree1(x, y);
+    add_big_tree2(x+1, y);
+    add_big_tree3(x, y+1);
+    add_big_tree4(x+1, y+1);
+}
+
+void add_spikes(int x, int y) 
+{
+    MapItem* newSpikes = (MapItem*) malloc(sizeof(MapItem));
+    newSpikes->type = SPIKES;
+    newSpikes->draw = draw_spikes;
+    newSpikes->walkable = false;
+    newSpikes->data = NULL;
+    void* val = insertItem(get_active_map()->items, XY_KEY(x, y), newSpikes);
+    if (val) {
+        free(val);
+    }
+} // add_spikes
+
+void add_fire(int x, int y, int type)
 {
     // 1. Implement the same way as how we add plant
     MapItem* newFire = (MapItem*) malloc(sizeof(MapItem));
-    newFire->type = FIRE;
+    newFire->type = type;
     newFire->draw = draw_fire;
     newFire->walkable = true;
     newFire->data = NULL;
