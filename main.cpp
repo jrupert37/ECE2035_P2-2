@@ -41,11 +41,10 @@ struct {
     bool has_key;       // flag when obtained the key
     bool game_solved;   // flag when game is complete
     bool talked_to_npc; // flag when you've talked to npc
-    bool ramblin;
-    bool is_hidden;
-    int max_lives;
-    int num_lives;
-    //You may add more flags as needed
+    bool ramblin;       // flag when in ramblin mode
+    bool is_hidden;     // flag when hidden behind big tree
+    int max_lives;      // Max number of lives, based on chosen difficulty
+    int num_lives;      // Current number of lives (must be less than or equal to max_lives)
 } Player;
 
 
@@ -62,13 +61,20 @@ struct {
  * needs to be performed (may be no action).
  */
 #define NO_ACTION 0
+
 #define ACTION_BUTTON 1
+#define EASY          1
+
 #define MENU_BUTTON 2
+#define HARD        2
+
 #define GO_LEFT 3
 #define GO_RIGHT 4
 #define GO_UP 5
 #define GO_DOWN 6
+
 #define RAMBLIN 7
+#define MEDIUM  7
 
 int get_action(GameInputs inputs)
 {
@@ -322,7 +328,7 @@ int update_game(int action)
                     // Erase the door
                     map_erase(45, 24);
                     speech("Congratulations!", "");
-                    speech("Open the chest to", "get your prize!");
+                    speech("Open the chest to", "claim your prize!");
                     return FULL_DRAW;
                 // If the player does not have the key
                 } else {
@@ -384,12 +390,14 @@ int update_game(int action)
             // If the player is approaching the chest
             } else if (n->type == CHEST || e->type == CHEST || s->type == CHEST || w->type == CHEST || here->type == CHEST) {
                 if (Player.game_solved) {
-                    speech("You have earned", "1000 Rupees!");
-                    speech("Congratulations!", "");
+                    speech("Congratulations!", "You've earned...");
+                    speech("Epic bragging", "rights!");
+                    //speech("You have earned", "1000 Rupees!");
+                    //speech("Congratulations!", "");
                     return WIN;
                 } else {
-                    // If player walked through door or wall in ramblin mode
-                    speech("Nice try! You", "must defeat buzz");
+                    // If player walked through door or wall in ramblin mode to get to chest early
+                    speech("Nice try! You", "must defeat Buzz");
                     speech("before you can", "claim your prize!");
                     return FULL_DRAW;
                 }
@@ -695,11 +703,12 @@ void init_main_map()
     add_plant(8, 47);
 
     // Big trees take up 4 map tiles (2x2)
-    // Given (x,y) coordinates passed to add_big_tree point to the top left of the 4 tiles
+    // (x,y) coordinates passed to add_big_tree correspond to the top left of the 4 tiles
     // Other 3 tiles are automatically created at (x+1, y), (x, y+1), and (x+1, y+1)
     add_big_tree(14, 36);
     add_big_tree(17, 20);
 
+    // Add spike elements that can take away hearts!
     add_spikes(8, 36);
     add_spikes(5, 16);
     add_spikes(42, 30);
@@ -784,17 +793,17 @@ void start_menu()
         int action = get_action(read_inputs());
         switch(action)
         {
-            case ACTION_BUTTON:
+            case EASY:
                 Player.max_lives = 3;
                 difficulty_chosen = true;
                 break;
         
-            case RAMBLIN:
+            case MEDIUM:
                 Player.max_lives = 2;
                 difficulty_chosen = true;
                 break;
             
-            case MENU_BUTTON:
+            case HARD:
                 Player.max_lives = 1;
                 difficulty_chosen = true;
                 break;
@@ -834,9 +843,13 @@ int main()
     draw_game(true);
     draw_hearts(0, 120, Player.num_lives);
     if (Player.max_lives == 1) {
-        speech("Beware! You have", "chosen hard mode!");
+        speech("Beware! You have", "chosen Hard Mode!");
         speech("One misstep...", "");
         speech("And it will be", "Game Over!");
+    } else if (Player.max_lives == 2) {
+        speech("You have chose", "Medium Mode!");
+    } else {
+        speech("You have chosen", "Easy Mode!");
     }
     speech("Try not to run", "into spikes!");
     
