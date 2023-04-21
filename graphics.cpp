@@ -114,12 +114,12 @@ void draw_player(int u, int v, int key)
             "SSOSESESOSS"
             " SSSOSOSSS "
             " OSSSSSSSO "
-            "YYYYYOYSYO "
+            " YYYYOSSSO "
             "YYYYYEYEY  "
             "YYOOYOYEYS "
             "YYOOYYYEYS "
             "YYYYYYYYYS "
-            "YYYYYEEE   ";
+            " YYYYEEE   ";
     }
     draw_img(u, v, img);
 }
@@ -467,6 +467,23 @@ int new_piskel_data[121] = {
 
    uLCD.BLIT(u,v, 11,11, new_piskel_data);
         
+}
+
+void draw_fire_buzz(int u, int v)
+{
+    const char* img = 
+        "   DD      "
+        "  D  D     "
+        "   RR FF   "
+        "  RR W FWW "
+        " RRR FFFWWW"
+        "  RRRWWWWWW"
+        "   RR   WW "
+        "F F   R  F "
+        " FF  R FF  "
+        "   RR      "
+        "     RR    ";
+    draw_img(u, v, img);
 }
 
 

@@ -415,6 +415,19 @@ void add_buzz(int x, int y)
     }
 } // add_buzz
 
+void add_fire_buzz(int x, int y)
+{
+    MapItem* newBuzz = (MapItem*) malloc(sizeof(MapItem));
+    newBuzz->type = FIRE_BUZZ;
+    newBuzz->draw = draw_fire_buzz;
+    newBuzz->walkable = false;
+    newBuzz->data = NULL;
+    void* val = insertItem(get_active_map()->items, XY_KEY(x, y), newBuzz);
+    if (val) {
+        free(val);
+    }
+}
+
 void add_slain_buzz(int x, int y)
 {
     // 1. Implement the same way as how we add plant
@@ -430,7 +443,7 @@ void add_slain_buzz(int x, int y)
     slainBuzz->data = NULL;
     void* val = insertItem(get_active_map()->items, XY_KEY(x, y), slainBuzz);
     if (val) {
-        //free(val);
+        free(val);
     }
     return;
 } // add_slain_buzz

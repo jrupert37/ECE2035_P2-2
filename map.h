@@ -86,6 +86,7 @@ typedef struct {
 #define SPIKES      15
 #define FIRE_HEALTH 16
 #define BIG_TREE    17
+#define FIRE_BUZZ   18
 
 /**
  * Initializes the internal structures for all maps. This does not populate
@@ -200,6 +201,7 @@ void add_big_tree1(int x, int y);
 void add_big_tree2(int x, int y);
 void add_big_tree3(int x, int y);
 void add_big_tree4(int x, int y);
+void add_fire_buzz(int x, int y);
 int get_active_map_index();
 
 #endif //MAP_H

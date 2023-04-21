@@ -75,4 +75,5 @@ void draw_big_tree1(int u, int v);
 void draw_big_tree2(int u, int v);
 void draw_big_tree3(int u, int v);
 void draw_big_tree4(int u, int v);
+void draw_fire_buzz(int u, int v);
 #endif // GRAPHICS_H
