@@ -17,8 +17,7 @@
 // Drawing Images based on Characters
 ///////////////////////////////////////////
 
-//Additional color definitions
-#define YELLOW 0xFFFF00         // Y
+//Additional color definitions         // Y
 #define BROWN  0xD2691E         
 #define DIRT   BROWN            // B
 #define TEAL   0x0AE5F5         // T
@@ -381,9 +380,9 @@ void draw_big_tree4(int u, int v)
         "WWDDDGGGGG "
         "WDDD GGGG  "
         "DDDD   G   "
-        "DDDDD      "
-        "DDDDD      "
-        "DDDDD      "
+        "DDDD       "
+        "DDDD       "
+        "DDDD       "
         "DDDD       "
         "DDDD       "
         "DDDDD      "
