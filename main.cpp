@@ -41,7 +41,7 @@ struct {
     int x,y;            // Current locations
     int px, py;         // Previous locations
     bool has_key;       // flag when obtained the key
-    bool first_buzz_defeated;
+    bool defeated_first_buzz;   // flag when defeated the first buzz
     bool game_solved;   // flag when game is complete
     bool talked_to_npc; // flag when you've talked to npc
     bool ramblin;       // flag when in ramblin mode
@@ -129,6 +129,7 @@ int update_game(int action)
     Player.px = Player.x;
     Player.py = Player.y;
     
+    // Find all items N,S,E,W and in the current player position
     MapItem* item = NULL;
     MapItem* n = get_north(Player.x, Player.y);
     MapItem* e = get_east(Player.x, Player.y);
@@ -149,6 +150,8 @@ int update_game(int action)
                 Player.x = Player.x;
                 Player.y = Player.y - 1;
             }
+            // If a player runs into spikes, they lose a heart
+            // Redraw hearts in the botton left corner
             if (item->type == SPIKES) {
                 speech("You have run", "into spikes!");
                 speech("You lose a", "heart!");
@@ -158,6 +161,7 @@ int update_game(int action)
                     return LOSE;
                 }
             }
+            // If the player runs into one of the four spaces of a big tree, hide the player
             item = get_here(Player.x, Player.y);
             Player.is_hidden = item->type == BIG_TREE ? true : false;
             direction = 'N';    // set current direction to N (north)
@@ -253,7 +257,7 @@ int update_game(int action)
                     speech("press the action", "button!");
                 }
                 // If player has talked to NPC but has not yet defeated buzz
-                else if (Player.talked_to_npc == true && Player.game_solved == false) {
+                else if (Player.talked_to_npc == true && Player.defeated_first_buzz == false) {
                     speech("Have you found", "the cave?");
                     speech("Check the SW", "corner!");
                     speech("If you defeat", "Buzz...");
@@ -268,6 +272,21 @@ int update_game(int action)
                     speech("and while", "standing next");
                     speech("to the fire...", "");
                     speech("press the action", "button!");
+                }
+                // If player has defeated first buzz but not the second buzz
+                // Now, player cannot get key from NPC until also defeating the second buzz.
+                else if (Player.defeated_first_buzz && !Player.game_solved) {
+                    speech("What's this?", "");
+                    speech("There is", "another Buzz?!");
+                    speech("A Fire Buzz,", "you say?");
+                    speech("I imagine fire", "will not work");
+                    speech("on this new", "buzz...");
+                    speech("There must be a", "spell you can use");
+                    speech("to defeat him.", "");
+                    speech("If you can", "figure it out...");
+                    speech("I will give you", "your key!");
+                    speech("If you have", "taken any damage");
+                    speech("try to regain", "health first!");
                 }
                 // If player has defeated buzz and not yet gotten the key
                 else if (Player.game_solved == true && Player.has_key == false) {
@@ -290,7 +309,7 @@ int update_game(int action)
             } else if (n->type == CAVE || e->type == CAVE || s->type == CAVE || w->type == CAVE) {
                 if (Player.talked_to_npc) {
                     // If the player has not yet defeated buzz, give instructions
-                    if (!Player.game_solved) {
+                    if (Player.defeated_first_buzz == false) {
                         speech("You are entering", "Buzz's cave!");
                         speech("Defeat him by", "casting spells.");
                         speech("Use the action", "button near a");
@@ -343,34 +362,34 @@ int update_game(int action)
             } else if (get_active_map_index() == BOSS_MAP) {
                 // If player is in the boss map, and adjacent to fire/water/earth elements
                 if ((here->type == FIRE || n->type == FIRE || e->type == FIRE || s->type == FIRE || w->type == FIRE) && !Player.game_solved) {
-                    // Fire is Buzz's weakness! Replace buzz with slain_buzz (tree), prompt player to return to NPC
-                    if (!Player.first_buzz_defeated) {
+                    // Fire is the first Buzz's weakness! Replace this buzz with a new Fire Buzz (must use water to defeat him)!
+                    if (!Player.defeated_first_buzz) {
                         speech("You have cast", "Fire!");
                         speech("Buzz has been", "defeated!");
                         add_fire_buzz(3, 9);
-                        Player.first_buzz_defeated = true;
+                        Player.defeated_first_buzz = true;
                         speech("But what's", "this...");
                         speech("Fire Buzz is", "here...");
                         speech("...to avenge", "his friend!");
                         speech("You must find", "the right spell");
                         speech("to extinguish", "this foe!");
+                    // Fire does not work on Fire Buzz
                     } else{
                         speech("You have cast", "Fire!");
                         speech("But Buzz remains", "undefeated!");
+                        // If you fail to defeat him, Buzz takes a turn for himself, and player loses a heart
                         enemy_turn();
+                        // If player has lost all lives, they lose! "You lose" screen will be drawn after this
                         if (Player.num_lives == 0) {
                             return LOSE;
                         }
                         speech("Try casting", "again!");
                     }
-                    // speech("Go back and", "talk to NPC.");
-                    // map_erase(3, 9);
-                    // add_slain_buzz(3, 9);
-                    // Player.game_solved = true;  // Player has successfully defeated Buzz
                     return FULL_DRAW;
                 // Other elements do not defeat buzz...
                 } else if ((here->type == WATER || n->type == WATER || e->type == WATER || s->type == WATER || w->type == WATER) && !Player.game_solved) {
-                    if (!Player.first_buzz_defeated) {
+                    // Water does not work on the first buzz
+                    if (!Player.defeated_first_buzz) {
                         speech("You have cast", "Water!");
                         speech("But Buzz remains", "undefeated!");
                         enemy_turn();
@@ -379,6 +398,7 @@ int update_game(int action)
                         }
                         speech("Try casting", "again!");
                         return FULL_DRAW;
+                    // Water is Fire Buzz's weakness! Prompt player to return to NPC, game is now solved
                     } else {
                         speech("You have cast", "Water!");
                         speech("Fire Buzz has", "been defeated!");
@@ -387,6 +407,7 @@ int update_game(int action)
                         Player.game_solved = true;
                     }
                     return FULL_DRAW;
+                // Earth does not work on either buzz
                 } else if ((here->type == EARTH || n->type == EARTH || e->type == EARTH || s->type == EARTH || w->type == EARTH) && !Player.game_solved) {
                     speech("You have cast", "Earth!");
                     speech("But Buzz remains", "undefeated!");
@@ -402,6 +423,7 @@ int update_game(int action)
                 if (Player.game_solved) {
                     speech("Congratulations!", "You've earned...");
                     speech("Epic bragging", "rights!");
+                    // "You win!" screen will now be drawn after this
                     return WIN;
                 } else {
                     // If player walked through door or wall in ramblin mode to get to chest early
@@ -420,7 +442,7 @@ int update_game(int action)
     return NO_RESULT;
 }
 
-
+// First and Second buzz can both cast spells against the player, causing them to lose a heart
 void enemy_turn() {
     speech("Now it is", "Buzz's turn!");
     speech("He has cast an", "anti-hero spell!");
@@ -446,6 +468,7 @@ void draw_game(int init)
     if(init) draw_border();
 
     // If player has defeated buzz, received the key, and opened the chest
+    // If the player has defeated both buzz's and won
     if(init == WIN) {
         Game_Over = true;
         // Clear the uLCD screen
@@ -454,6 +477,7 @@ void draw_game(int init)
         draw_text("Game Over", 8, 5, GREEN);
         draw_text("You Win!", 9, 6, GREEN);
         return;
+    // If the player has lost all their lives
     } else if (init == LOSE) {
         Game_Over = true;
         uLCD.cls();
@@ -484,7 +508,7 @@ void draw_game(int init)
             // Figure out what to draw
             DrawFunc draw = NULL;
 //            if (init && i == 0 && j == 0) // Only draw the player on init
-            if (!Player.is_hidden && i == 0 && j == 0) // always draw the player
+            if (!Player.is_hidden && i == 0 && j == 0) // Only draw the player if they are not currently hidden by a big tree
             {
                 draw_player(u, v, Player.has_key);
                 continue;
@@ -533,12 +557,10 @@ void draw_game(int init)
     // Display this text at the top of the screen
     draw_text(xCoordinate, 0, 0, WHITE);
 
-    if (Player.has_key && !key_drawn) {     // key only needs to be drawn once
+    if (Player.has_key && !key_drawn) {     // key only needs to be drawn once in the upper right corner, saves time during the redraw phase
         draw_key(115, 0);
         key_drawn = true;
     }
-
-   // draw_hearts(0, 120, Player.num_lives);
 }
 
 
@@ -602,9 +624,12 @@ void init_main_map()
     add_earth(7, 24, HORIZONTAL, 38);
 
 
-    // // Add fire elements to "campsites"
+    //  Add fire elements to "campsites"
+    //  FIRE_HEALTH type means player can use that fire to regain health
     add_fire(47, 2, FIRE_HEALTH);
     add_fire(28, 9, FIRE_HEALTH);
+
+    // FIRE type is a regular fire that cannot be used to regain health
     add_fire(6, 22, FIRE);
     add_fire(6, 26, FIRE);
     
@@ -716,7 +741,7 @@ void init_main_map()
     add_big_tree(17, 20);
 
     // Add spike elements that can take away hearts!
-    add_spikes(8, 36);
+    add_spikes(6, 36);
     add_spikes(5, 16);
     add_spikes(42, 30);
     add_spikes(21, 46);
@@ -774,9 +799,9 @@ void init_boss_map()
     add_buzz(3, 9);
 
     // You may add any extra characters/items here for your project
-
     add_mud(10, 9, HORIZONTAL, 9);
     add_spikes(9, 9);
+    add_big_tree(12, 6);
     
     // Add stairs back to main map
     add_stairs(18, 9, MAIN_MAP, 4, 46);
@@ -784,6 +809,7 @@ void init_boss_map()
 
 void start_menu() 
 {
+    // Display welcome screen/difficulty options
     draw_text("Welcome to the", 1, 2, GREEN);
     draw_text("Legend of Burdell!", 2, 1, GREEN);
     draw_text("Choose a", 4, 1, WHITE);
@@ -794,22 +820,24 @@ void start_menu()
     draw_text("(button 2)", 11, 8, YELLOW);
     draw_text("Hard   - 1 heart", 13, 1, RED);
     draw_text("(button 3)", 14, 8, RED);
-    bool difficulty_chosen = false;
+    bool difficulty_chosen = false; // Flag to determine if player has chosen difficulty option yet
     while(!difficulty_chosen) 
     {
+        // Check if the b1, b2, or b3 has been pressed
         int action = get_action(read_inputs());
         switch(action)
-        {
+        {   
+            // Player gets 3 hearts in easy mode
             case EASY:
                 Player.max_lives = 3;
                 difficulty_chosen = true;
                 break;
-        
+            // Player gets 2 hearts in medium mode
             case MEDIUM:
                 Player.max_lives = 2;
                 difficulty_chosen = true;
                 break;
-            
+            // Player gets 1 heart in hard mode
             case HARD:
                 Player.max_lives = 1;
                 difficulty_chosen = true;
@@ -845,9 +873,9 @@ int main()
     // Set player initial conditions
     Player.x = Player.y = 6;
     Player.has_key = false;
-    Player.first_buzz_defeated = false;
+    Player.defeated_first_buzz = false; 
     Player.game_solved = false;
-    Player.talked_to_npc = false;
+    Player.talked_to_npc = false;   
     Player.ramblin = false;
     Player.is_hidden = false;
     Player.num_lives = Player.max_lives;
@@ -869,7 +897,7 @@ int main()
     speech("Try not to run", "into spikes!");
     
     // Main game loop
-    // Run while Game_Over is false (player has not solved the quest and opened the chest)
+    // Run while Game_Over is false (player has not solved the quest and opened the chest, or player has not lost all health)
     while(!Game_Over)
     {
         // Timer to measure game update speed
