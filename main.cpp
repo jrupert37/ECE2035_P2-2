@@ -167,12 +167,7 @@ int update_game(int action)
                 }
             }
             item = get_here(Player.x, Player.y);
-            if (item->type == BIG_TREE) {
-                Player.is_hidden = true;
-            } else
-            {
-                Player.is_hidden = false;
-            }
+            Player.is_hidden = item->type == BIG_TREE ? true : false;
             direction = 'N';    // set current direction to N (north)
             return FULL_DRAW;
             break;
@@ -193,12 +188,7 @@ int update_game(int action)
                 }
             }
             item = get_here(Player.x, Player.y);
-            if (item->type == BIG_TREE) {
-                Player.is_hidden = true;
-            } else
-            {
-                Player.is_hidden = false;
-            }
+            Player.is_hidden = item->type == BIG_TREE ? true : false;
             direction = 'W';    // set current direction to W (west)
             return FULL_DRAW;
             break;
@@ -219,12 +209,7 @@ int update_game(int action)
                 }
             }
             item = get_here(Player.x, Player.y);
-            if (item->type == BIG_TREE) {
-                Player.is_hidden = true;
-            } else
-            {
-                Player.is_hidden = false;
-            }
+            Player.is_hidden = item->type == BIG_TREE ? true : false;
             direction = 'S';    // set current direction to S (south)
             return FULL_DRAW;
             break;
@@ -245,12 +230,7 @@ int update_game(int action)
                 }
             }
             item = get_here(Player.x, Player.y);
-            if (item->type == BIG_TREE) {
-                Player.is_hidden = true;
-            } else
-            {
-                Player.is_hidden = false;
-            }
+            Player.is_hidden = item->type == BIG_TREE ? true : false;
             direction = 'E';    // set current directino to E (east)
             return FULL_DRAW;
             break;
@@ -272,12 +252,12 @@ int update_game(int action)
                     speech("I will give", "you a key!");
                     speech("By the way...", "");
                     speech("You can regain", "lost health");
-                    speech("By finding one", "of the");
+                    speech("by finding one", "of the");
                     speech("nearby campsites.","");
                     speech("Follow one of", "the earthen");
                     speech("paths toward", "the north");
                     speech("and while", "standing next");
-                    speech("to one of the", "fires...");
+                    speech("to the fire...", "");
                     speech("press the action", "button!");
                     return FULL_DRAW;
                 }
@@ -290,12 +270,12 @@ int update_game(int action)
                     speech("He has a weakness", "for fire...");
                     speech("And by the way...", "");
                     speech("You can regain", "lost health");
-                    speech("By finding one", "of the");
+                    speech("by finding one", "of the");
                     speech("nearby campsites.","");
                     speech("Follow one of", "the earthen");
                     speech("paths toward", "the north");
                     speech("and while", "standing next");
-                    speech("to one of the", "fires...");
+                    speech("to the fire...", "");
                     speech("press the action", "button!");
                     return FULL_DRAW;
                 }
@@ -420,7 +400,6 @@ int update_game(int action)
             wait(0.03);
             break;
     }
-    
     return NO_RESULT;
 }
 
@@ -716,6 +695,9 @@ void init_main_map()
     add_plant(25, 28);
     add_plant(8, 47);
 
+    // Big trees take up 4 map tiles (2x2)
+    // Given (x,y) coordinates passed to add_big_tree point to the top left of the 4 tiles
+    // Other 3 tiles are automatically created at (x+1, y), (x, y+1), and (x+1, y+1)
     add_big_tree(14, 36);
     add_big_tree(17, 20);
 
