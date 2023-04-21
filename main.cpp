@@ -43,6 +43,7 @@ struct {
     bool talked_to_npc; // flag when you've talked to npc
     bool ramblin;
     bool is_hidden;
+    int max_lives;
     int num_lives;
     //You may add more flags as needed
 } Player;
@@ -78,6 +79,8 @@ int get_action(GameInputs inputs)
         return ACTION_BUTTON;
     } else if (!inputs.b2) {
         return RAMBLIN;
+    } else if (!inputs.b3) {
+        return MENU_BUTTON;
     } else if (inputs.ns_left) {
         return GO_LEFT;
     } else if (inputs.ns_right) {
@@ -149,7 +152,6 @@ int update_game(int action)
     {
         case GO_UP:
             //1. Check the item north of the player
-           // draw_text("            ", 0, 0, BLACK);
             item = get_north(Player.x, Player.y);
             //2. Make sure to not walk through walls
             // If it is not a wall (or player is in ramblin mode), walk up by updating player's coordinates
@@ -340,7 +342,7 @@ int update_game(int action)
                 set_active_map(MAIN_MAP);
                 return FULL_DRAW;
             } else if (n->type == FIRE_HEALTH || e->type == FIRE_HEALTH || s->type == FIRE_HEALTH || w->type == FIRE_HEALTH) { 
-                if (Player.num_lives < 3) {
+                if (Player.num_lives < Player.max_lives) {
                     speech("You have gained", "a heart back!");
                     Player.num_lives++;
                     draw_hearts(0, 120, Player.num_lives);
@@ -647,7 +649,6 @@ void init_main_map()
     add_plant(30, 8);
     add_plant(46, 8);
     add_plant(7, 9);
-    add_plant(19, 10);
     add_plant(38, 10);
     add_plant(41, 10);
     add_plant(2, 12);
@@ -677,8 +678,6 @@ void init_main_map()
     add_plant(25, 45);
     add_plant(30, 45);
     add_plant(15, 43);
-    add_plant(40, 43);
-    add_plant(46, 43);
     add_plant(22, 41);
     add_plant(1, 40);
     add_plant(25, 40);
@@ -705,6 +704,7 @@ void init_main_map()
     add_spikes(5, 16);
     add_spikes(42, 30);
     add_spikes(21, 46);
+    add_spikes(19, 10);
 
     // Add entrance to Buzz's cave
     add_earth(1, 44, HORIZONTAL, 1);
@@ -759,10 +759,47 @@ void init_boss_map()
 
     // You may add any extra characters/items here for your project
 
-    add_mud(9, 9, HORIZONTAL, 10);
+    add_mud(10, 9, HORIZONTAL, 9);
+    add_spikes(9, 9);
     
     // Add stairs back to main map
     add_stairs(18, 9, MAIN_MAP, 4, 46);
+}
+
+void start_menu() 
+{
+    draw_text("Welcome to the", 1, 2, GREEN);
+    draw_text("Legend of Burdell!", 2, 1, GREEN);
+    draw_text("Choose a", 4, 1, WHITE);
+    draw_text("difficulty: ", 5, 1, WHITE);
+    draw_text("Easy   - 3 hearts", 7, 1, GREEN);
+    draw_text("(button 1)", 8, 8, GREEN);
+    draw_text("Medium - 2 hearts", 10, 1, YELLOW);
+    draw_text("(button 2)", 11, 8, YELLOW);
+    draw_text("Hard   - 1 heart", 13, 1, RED);
+    draw_text("(button 3)", 14, 8, RED);
+    bool difficulty_chosen = false;
+    while(!difficulty_chosen) 
+    {
+        int action = get_action(read_inputs());
+        switch(action)
+        {
+            case ACTION_BUTTON:
+                Player.max_lives = 3;
+                difficulty_chosen = true;
+                break;
+        
+            case RAMBLIN:
+                Player.max_lives = 2;
+                difficulty_chosen = true;
+                break;
+            
+            case MENU_BUTTON:
+                Player.max_lives = 1;
+                difficulty_chosen = true;
+                break;
+        }
+    }
 }
 
 
@@ -784,6 +821,7 @@ int main()
     maps_init();
     init_main_map();
     init_boss_map();
+    start_menu();
     set_active_map(MAIN_MAP);
     // Set player initial conditions
     Player.x = Player.y = 6;
@@ -792,9 +830,15 @@ int main()
     Player.talked_to_npc = false;
     Player.ramblin = false;
     Player.is_hidden = false;
-    Player.num_lives = 3;
+    Player.num_lives = Player.max_lives;
     draw_game(true);
     draw_hearts(0, 120, Player.num_lives);
+    if (Player.max_lives == 1) {
+        speech("Beware! You have", "chosen hard mode!");
+        speech("One misstep...", "");
+        speech("And it will be", "Game Over!");
+    }
+    speech("Try not to run", "into spikes!");
     
     // Main game loop
     // Run while Game_Over is false (player has not solved the quest and opened the chest)
